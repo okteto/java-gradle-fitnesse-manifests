@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devenv
+  annotations:
+    dev.okteto.com/inject-token: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devenv
+  template:
+    metadata:
+      labels:
+        app: devenv
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: devenv
+        image: ${IMAGE}
+        imagePullPolicy: Always
+        command: 
+        - /usr/src/app/run-fitnesse.sh
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: devenv
+  labels:
+    app: devenv
+spec:
+  type: ClusterIP
+  ports:
+    - name: devenv
+      port: 8080
+  selector:
+    app: devenv
